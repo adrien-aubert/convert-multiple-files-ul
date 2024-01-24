@@ -1,6 +1,18 @@
 import * as path from 'path';
 import * as child_process from 'child_process';
 
+const execCommand = (command: string): Promise<Buffer> => {
+  return new Promise((resolve, reject) => {
+    child_process.exec(command, null, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(stdout);
+      }
+    })
+  });
+}
+
 export const convertWordFiles = async (pathFile: string, extOutput: string, outputDir: string, timeoutInSeconds: string): Promise<string> => {
   const system = process.platform;
   const extension = path.extname(pathFile);
@@ -17,8 +29,8 @@ export const convertWordFiles = async (pathFile: string, extOutput: string, outp
   }
 
   try {
-    if (system === 'linux') { child_process.execSync(convertCommandLinux).toString('utf8') }
-    if (system === 'win32') { child_process.execSync(convertCommandWindows).toString('utf8') }
+    if (system === 'linux') { await execCommand(convertCommandLinux) }
+    if (system === 'win32') { await execCommand(convertCommandWindows) }
   } catch (e) {
     console.error('convertWordFiles:', e);
     throw new Error('Error converting the file');
